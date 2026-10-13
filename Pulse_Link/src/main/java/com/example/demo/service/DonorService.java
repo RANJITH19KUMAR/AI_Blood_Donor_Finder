@@ -109,4 +109,16 @@ public List<Donor> searchDonors(String bloodGroup, String city) {
     return donorRepository.findByActiveTrue();
 }
 
+
+public Donor updateAvailability(Long id, boolean available) {
+
+    Donor donor = donorRepository.findById(id)
+        .orElseThrow(() ->
+            new RuntimeException("Donor not found with id: " + id));
+
+    donor.setAvailable(available);
+
+    return donorRepository.save(donor);
+}
+
 }

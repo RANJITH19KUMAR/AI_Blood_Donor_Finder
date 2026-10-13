@@ -74,4 +74,16 @@ public ResponseEntity<List<Donor>> searchDonors(
     public Donor activateDonor(@PathVariable Long id) {
         return donorService.activateDonor(id);
     }
+    
+
+@PatchMapping("/{id}/availability")
+public ResponseEntity<Donor> updateAvailability(
+        @PathVariable Long id,
+        @RequestParam boolean available) {
+
+    return ResponseEntity.ok(
+        donorService.updateAvailability(id, available)
+    );
+}
+
 }
