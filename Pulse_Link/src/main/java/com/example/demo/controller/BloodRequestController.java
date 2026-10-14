@@ -1,6 +1,7 @@
 
 package com.example.demo.controller;
 
+import java.util.Comparator;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
@@ -53,20 +54,20 @@ public class BloodRequestController {
     }
     
 
-    @GetMapping("/{id}/matching-donors")
-    public List<Donor> findMatchingDonors(
-            @PathVariable Long id) {
-
-        BloodRequest request = repository.findById(id)
-            .orElseThrow(() -> new ResponseStatusException(
-                HttpStatus.NOT_FOUND, "Blood request not found"));
-
-        return donorRepository
-            .findByBloodGroupIgnoreCaseAndCityIgnoreCaseAndActiveTrueAndAvailableTrue(
-                request.getBloodGroup(),
-                request.getCity()
-            );
-    }
+//    @GetMapping("/{id}/matching-donors")
+//    public List<Donor> findMatchingDonors(
+//            @PathVariable Long id) {
+//
+//        BloodRequest request = repository.findById(id)
+//            .orElseThrow(() -> new ResponseStatusException(
+//                HttpStatus.NOT_FOUND, "Blood request not found"));
+//
+//        return donorRepository
+//            .findByBloodGroupIgnoreCaseAndCityIgnoreCaseAndActiveTrueAndAvailableTrue(
+//                request.getBloodGroup(),
+//                request.getCity()
+//            );
+//    }
     
 
 @PostMapping("/{requestId}/responses")
@@ -124,6 +125,38 @@ public List<DonorResponse> getRequestResponses(
             HttpStatus.NOT_FOUND, "Blood request not found"));
 
     return responseRepository.findByBloodRequestId(requestId);
+}
+
+
+@GetMapping("/{id}/matching-donors")
+public List<Donor> findMatchingDonors( @PathVariable Long id) {
+
+    BloodRequest request = repository.findById(id)
+        .orElseThrow(() -> new ResponseStatusException(
+            HttpStatus.NOT_FOUND,
+            "Blood request not found"));
+
+    List<Donor> donors = donorRepository
+        .findByBloodGroupIgnoreCaseAndActiveTrueAndAvailableTrue(
+            request.getBloodGroup());
+
+    String requestedCity = request.getCity();
+
+    donors.sort(
+        Comparator.comparing(
+            (Donor donor) ->
+                donor.getCity() != null &&
+                requestedCity != null &&
+                donor.getCity().trim()
+                    .equalsIgnoreCase(requestedCity.trim())
+        ).reversed()
+        .thenComparing(
+            Donor::getName,
+            Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)
+        )
+    );
+
+    return donors;
 }
 
 }

@@ -19,4 +19,7 @@ public interface DonorRepository
 List<Donor> findByBloodGroupIgnoreCaseAndCityIgnoreCaseAndActiveTrueAndAvailableTrue(
         String bloodGroup, String city);
 
+List<Donor> findByBloodGroupIgnoreCaseAndActiveTrueAndAvailableTrue(
+        String bloodGroup);
+
 }
